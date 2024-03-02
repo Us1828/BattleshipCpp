@@ -1,13 +1,14 @@
 #include <iostream>
 #include <random>
+#include <conio.h>
 using namespace std;
 random_device rd;
 mt19937 gen(rd());
 
 
-void clear() {
+void clear(string text) {
     system("cls");
-    cout << "Морской Бой" << endl << endl;
+    cout << "Морской Бой" << " " << text << endl << endl;
 }
 
 
@@ -43,6 +44,25 @@ void printArray(string array[10][10]) {
 }
 
 
+int input(int min, int max) {
+    int ask;
+    cin >> ask;
+    while (cin.fail() or ask < min or ask > max) {
+        cout << endl <<  "Ошибка, вы неправильно написали" << endl << endl;
+        cin.clear();
+        cin.ignore(32767,'\n');
+        cin >> ask;
+    }
+    return ask;
+}
+
+
+void wait() {
+    cout << endl << "Нажмите любую клавишу для продолжения" << endl << endl;
+    getch();
+}
+
+
 int check(int y, int x, string array[10][10]) {
     if (x >= 0 and x < 10 and y >= 0 and y < 10) {
         if (array[y][x] != "O") {
@@ -54,6 +74,24 @@ int check(int y, int x, string array[10][10]) {
     }
     else {
         return 0;
+    }
+}
+
+
+int checkForIsKill(int y, int x, string array[10][10]) {
+    if (x >= 0 and x < 10 and y >= 0 and y < 10) {
+        if (array[y][x] == "O") {
+            return 0;
+        }
+        else if (array[y][x] == "X") {
+            return 1;
+        }
+        else {
+            return 2;
+        }
+    }
+    else {
+        return 2;
     }
 }
 
@@ -181,29 +219,29 @@ void putArray(string array[10][10]) {
         if (i == 6 or i == 7 or i == 8 or i == 9) {
             size = 1;
         }
-        clear();
+        clear("Игра Расстановка кораблей");
         printArray(array);
         cout << "Размер Х Количество" << endl;
         cout << "4х1 3х2 2х3 1х4" << endl;
         cout << "Размер корабля " << size << endl;
         cout << endl << "Выберите точку по горизонтале 0-9" << endl << endl;
-        cin >> x;
+        x = input(0, 9);
         cout << endl << "Выберите точку по вертикале 0-9" << endl << endl;
-        cin >> y;
+        y = input(0, 9);
         cout << endl << "Выберите сторону, куда будет смотреть 1 горизонталь 2 вертикаль" << endl << endl;
-        cin >> direct;
+        direct = input(1 ,2);
         while (checkPut(x, y, direct-1, size, array) != 1) {
-            clear();
+            clear("Игра Расстановка кораблей");
             printArray(array);
             cout << "4х1 3х2 2х3 1х4" << endl;
             cout << "Вы неправильно разместили корабль" << endl;
             cout << "Размер корабля " << size << endl;
             cout << endl << "Выберите точку по горизонтале 0-9" << endl << endl;
-            cin >> x;
+            x = input(0, 9);
             cout << endl << "Выберите точку по вертикале 0-9" << endl << endl;
-            cin >> y;
+            y = input(0, 9);
             cout << endl << "Выберите сторону, куда будет смотреть 1 горизонталь 2 вертикаль" << endl << endl;
-            cin >> direct;
+            direct = input(1, 2);
         }
     }
 }
@@ -250,20 +288,56 @@ int checkArray(string myField[10][10], string botField[10][10]) {
 }
 
 
-int myShoot(string botField[10][10], string myBotField[10][10], string myField[10][10]) {
+int checkIsKill(int x, int y, string array[10][10]) {
+    int x1 = 0, y1 = 0, direct = 0;
+    cout << endl << "Вы попали и ";
+    if (checkForIsKill(y+1, x, array) == 0 or checkForIsKill(y-1, x, array) == 0 or checkForIsKill(y, x+1, array) == 0 or checkForIsKill(y, x-1, array) == 0) {
+        return 0;
+    }
+    if (checkForIsKill(y+1, x, array) == 2 and checkForIsKill(y-1, x, array) == 2 and checkForIsKill(y, x+1, array) == 2 and checkForIsKill(y, x-1, array) == 2) {
+        return 1;
+    }
+    for (int i = 0; i < 2; i++) {
+        while (checkForIsKill(y+y1, x+x1, array) != 2) {
+            if (checkForIsKill(y+1, x, array) != 2 or checkForIsKill(y-1, x, array) != 2) {
+                if (direct == 0) {
+                    y1++;
+                }
+                else {
+                    y1--;
+                }
+            }
+            else if (checkForIsKill(y, x+1, array) != 2 or checkForIsKill(y, x-1, array) != 2) {
+                if (direct == 0) {
+                    x1++;
+                }
+                else {
+                    x1--;
+                }
+            }
+            if (checkForIsKill(y+y1, x+x1, array) == 0) {
+                return 0;
+            }
+        }
+        x1 = 0, y1 = 0, direct = 1;
+    }
+    return 1;
+}
+
+
+int myShoot(string botField[10][10], string myBotField[10][10]) {
     int x, y;
     cout << "Атакуете вы" << endl;
     cout << endl << "Выберите точку по горизонтале 0-9" << endl << endl;
-    cin >> x;
+    x = input(0, 9);
     cout << endl << "Выберите точку по вертикале 0-9" << endl << endl;
-    cin >> y;
+    y = input(0, 9);
     if (botField[y][x] == "O") {
-        cout << endl << "Вы попали и ";
-        if (check(x+1, y, botField) == 0 and check(x-1, y, botField) == 0 and check(x, y+1, botField) == 0 and check(x, y-1, botField) == 0) {
-            cout << "потопили корабль" << endl;
+        if (checkIsKill(x, y, botField) == 0) {
+            cout << "ранили корабль" << endl;
         }
         else {
-            cout << "ранили корабль" << endl;
+            cout << "потопили корабль" << endl;
         }
         botField[y][x] = "X";
         myBotField[y][x] = "X";
@@ -298,11 +372,11 @@ int botShoot(string myField[10][10]) {
     else {
         if (myField[y][x] == " ") {
             myField[y][x] = "*";
-            cout << endl << "Противник промазал" << endl;
+            cout << "Противник промазал" << endl;
         }
         if (myField[y][x] == "O") {
             myField[y][x] = "X";
-            cout << endl << "Противник попал" << endl;
+            cout << "Противник попал" << endl;
             return 1;
         }
     }
@@ -310,12 +384,13 @@ int botShoot(string myField[10][10]) {
 }
 
 
-int play(string myField[10][10], string myBotField[10][10], string botField[10][10]) {
+void play(string myField[10][10], string myBotField[10][10], string botField[10][10]) {
     int put, resume;
-    clear();
+    string get;
 
+    clear("Игра Расстановка кораблей");
     cout << "1 Вы ставите корабли или 2 рандом?" << endl << endl;
-    cin >> put;
+    put = input(1, 2);
     fullGenerationArray(botField);
     if (put == 1) {
         putArray(myField);
@@ -323,31 +398,34 @@ int play(string myField[10][10], string myBotField[10][10], string botField[10][
     else {
         fullGenerationArray(myField);
     }
-    clear();
+
+    clear("Игра");
     cout << "Ваше поле" << endl;
     printArray(myField);
     cout << "Поле противника" << endl;
     printArray(myBotField);
 
     cout << "1 Начать игру 2 Выйти" << endl << endl;
-    cin >> resume;
+    resume = input(1, 2);
+
     if (resume == 1) {
-        int first = 1;
+        int first = gen() % 2;
         if (first == 0) {
             cout << endl << "Вам повезло, вы атакуете первым" << endl;
         }
         else{
             cout << endl << "Вам не повезло, вас атакуют первым" << endl;
         }
-        string get;
+
         while (checkArray(myField, botField) == 0) {
-            clear();
+            clear("Игра");
             cout << "Ваше поле" << endl;
             printArray(myField);
             cout << "Поле противника" << endl;
             printArray(myBotField);
+
             if (first == 0) {
-                if (myShoot(botField, myBotField, myField) != 1) {
+                if (myShoot(botField, myBotField) != 1) {
                     first = 1;
                 }
             }
@@ -356,14 +434,61 @@ int play(string myField[10][10], string myBotField[10][10], string botField[10][
                     first = 0;
                 }
             }
-            cout << "Отправьте что-то для продолжения" << endl << endl;
-            cin >> get;
+            wait();
         }
+
+        if (checkArray(myField, botField) == 1) {
+            cout << endl << "Победил противник!" << endl;
+        }
+        else {
+            cout << endl << "Вы победили!" << endl;
+        }
+        cout << endl << "Отправьте что-то для выхода" << endl << endl;
+        cin >> get;
     }
-    else {
-        return 0;
+}
+
+
+void rules() {
+    string array[10][10]; fillArray(array);
+    fullGenerationArray(array);
+    clear("Правила");
+    cout << "Ответы на вопросы даются числом, который задан в ответе" << endl;
+    cout << "В игре существует ваше поле и поле противника, все они 10х10 клеток" << endl << "В игре пользователю видно 2 поля - его личное и поле противника для удобства попадания" << endl;
+    cout << "После начала игры выбор - игрок сам ли расстановит корабли, или за него рандом сделает" << endl;
+    cout << "При расстановки кораблей существуют правила." << endl << "Должно быть Количество палуб x Количество кораблей в таком виде 4x1 3x2 2x3 1x4" << endl;
+    cout << "Корабли не должны соприкасаться, а быть в расстоянии друг от друга в 1 клетку" << endl;
+    cout << "Вид правильной расстановки при рандом варианте:" << endl << endl;
+    printArray(array);
+    cout << "Целая палуба корабля позначается O, разрушенная палуба корабля позначается X, пустое место никак не позначается, промазанная клетка при выстреле позначается *" << endl << endl;
+    cout << "После расстановки кораблей рандомно выбирается первый кто стреляет - вы или противник" << endl; 
+    cout << "При стрельбе следует помнить, что бессмысленно стрелять в одну и ту же клетку, и после каждого выстрела пишется - попал или не попал, а также ранил или потопил корабль" << endl;
+    cout << "Первый игрок, который потопил все палубы у всех кораблей - побеждает" << endl;
+    wait();
+}
+
+
+void game(string myField[10][10], string myBotField[10][10], string botField[10][10]) {
+    int ask = 0;
+    clear("Главное меню");
+    cout << "1 Играть" << endl << "2 Правила" << endl << "3 Выйти" << endl << endl;
+    ask = input(1, 3);
+    switch (ask) {
+        case 1:
+            play(myField, myBotField, botField);
+            break;
+        
+        case 2:
+            rules();
+            game(myField, myBotField, botField);
+            break;
+        
+        case 3:
+            break;
+        
+        default:
+            break;
     }
-    return 0;
 }
 
 
@@ -371,28 +496,5 @@ int main() {
     setlocale(LC_ALL, "Russian");
     string myField[10][10], myBotField[10][10], botField[10][10];
     fillArray(myField), fillArray(myBotField), fillArray(botField);
-    int ask = 0;
-    
-    clear();
-    cout << "1 Играть" << endl << "2 Правила" << endl << "3 Настройки" << endl << "4 Выйти" << endl << endl;
-    cin >> ask;
-    switch (ask) {
-        case 1:
-            play(myField, myBotField, botField);
-            break;
-        
-        case 2:
-            
-            break;
-        
-        case 3:
-            
-            break;
-        
-        case 4:
-            break;
-        
-        default:
-            break;
-    }
+    game(myField, myBotField, botField);
 }
