@@ -1,6 +1,8 @@
 #include <iostream>
 #include <random>
 #include <conio.h>
+#include <vector>
+#include <stdlib.h>
 using namespace std;
 random_device rd;
 mt19937 gen(rd());
@@ -261,9 +263,7 @@ void fullGenerationArray(string array[10][10]) {
 }
 
 
-int checkArray(string myField[10][10], string botField[10][10]) {
-    int my = 0;
-    int bot = 0;
+int checkArray(string myField[10][10], string botField[10][10], int &my, int &bot) {
     for (int i = 0; i < 10; i++) {
         for (int d = 0; d < 10; d++) {
             if (myField[d][i] == "X") {
@@ -290,7 +290,6 @@ int checkArray(string myField[10][10], string botField[10][10]) {
 
 int checkIsKill(int x, int y, string array[10][10]) {
     int x1 = 0, y1 = 0, direct = 0;
-    cout << endl << "Вы попали и ";
     if (checkForIsKill(y+1, x, array) == 0 or checkForIsKill(y-1, x, array) == 0 or checkForIsKill(y, x+1, array) == 0 or checkForIsKill(y, x-1, array) == 0) {
         return 0;
     }
@@ -333,6 +332,7 @@ int myShoot(string botField[10][10], string myBotField[10][10]) {
     cout << endl << "Выберите точку по вертикале 0-9" << endl << endl;
     y = input(0, 9);
     if (botField[y][x] == "O") {
+        cout << "Вы попали и ";
         if (checkIsKill(x, y, botField) == 0) {
             cout << "ранили корабль" << endl;
         }
@@ -362,30 +362,174 @@ int myShoot(string botField[10][10], string myBotField[10][10]) {
 }
 
 
-int botShoot(string myField[10][10]) {
-    int x = gen() % 10;
-    int y = gen() % 10;
-    if (myField[y][x] == "*" or myField[y][x] == "X") {
-        botShoot(myField);
+int botCheckShoot(int &x, int &y, string botMyField[10][10], string text){
+    vector<int> arrX(0);
+    vector<int> arrY(0);
+    for (int i = 0; i < 10; i++){
+        for (int d = 0; d < 10; d++){
+            if (botMyField[i][d] == text){
+                arrX.push_back(d);
+                arrY.push_back(i);
+            }
+        }
+    }
+    if (arrX.size() > 0) {
+        int num = gen() % (arrX.size());
+        x = arrX[num];
+        y = arrY[num];
         return 0;
     }
+    return 1;
+}
+
+
+void paint(int x, int y, string array[10][10], string text) {
+    if (x >= 0 and x < 10 and y >= 0 and y < 10) {
+        if (array[y][x] == " " or array[y][x] == "o") {
+            array[y][x] = text;
+        }
+    }
+}
+
+
+void paintingBotShoot(int x, int y, string array[10][10]) {
+    int x1 = 0, y1 = 0, direct = 0;
+    if (checkForIsKill(y+1, x, array) == 2 and checkForIsKill(y-1, x, array) == 2 and checkForIsKill(y, x+1, array) == 2 and checkForIsKill(y, x-1, array) == 2) {
+        paint(x+1, y, array, ".");
+        paint(x-1, y, array, ".");
+        paint(x, y+1, array, ".");
+        paint(x, y-1, array, ".");
+        paint(x+1, y-1, array, ".");
+        paint(x-1, y+1, array, ".");
+        paint(x+1, y+1, array, ".");
+        paint(x-1, y-1, array, ".");
+    }
     else {
-        if (myField[y][x] == " ") {
-            myField[y][x] = "*";
-            cout << "Противник промазал" << endl;
+        for (int i = 0; i < 2; i++) {
+            while (checkForIsKill(y+y1, x+x1, array) != 2) {
+                if (checkForIsKill(y+1, x, array) != 2 or checkForIsKill(y-1, x, array) != 2) {
+                    paint(x+x1+1, y+y1, array, ".");
+                    paint(x+x1-1, y+y1, array, ".");
+                    if (direct == 0) {
+                        y1++;
+                    }
+                    else {
+                        y1--;
+                    }
+                }
+                else if (checkForIsKill(y, x+1, array) != 2 or checkForIsKill(y, x-1, array) != 2) {
+                    paint(x+x1, y+y1+1, array, ".");
+                    paint(x+x1, y+y1-1, array, ".");
+                    if (direct == 0) {
+                        x1++;
+                    }
+                    else {
+                        x1--;
+                    }
+                }
+            }
+            if (checkForIsKill(y+1, x, array) != 2 or checkForIsKill(y-1, x, array) != 2) {
+                paint(x+x1+1, y+y1, array, ".");
+                paint(x+x1-1, y+y1, array, ".");
+                paint(x+x1, y+y1, array, ".");
+            }
+            else {
+                paint(x+x1, y+y1+1, array, ".");
+                paint(x+x1, y+y1-1, array, ".");
+                paint(x+x1, y+y1, array, ".");
+            }
+            x1 = 0, y1 = 0, direct = 1;
         }
-        if (myField[y][x] == "O") {
-            myField[y][x] = "X";
-            cout << "Противник попал" << endl;
-            return 1;
+    }
+}
+
+
+void clearBotMyShoot(string botMyField[10][10]) {
+    for (int i = 0; i < 10; i++) {
+        for (int d = 0; d < 10; d++) {
+            if (botMyField[i][d] == "o") {
+                botMyField[i][d] = " ";
+            }
         }
+    }
+}
+
+
+void paintBotShoot(int x, int y, string array[10][10], int botHit) {
+    int x1 = 0, y1 = 0, direct = 0;
+    for (int i = 0; i < 2; i++) {
+        while (checkForIsKill(y+y1, x+x1, array) != 2) {
+            if (checkForIsKill(y+1, x, array) != 2 or checkForIsKill(y-1, x, array) != 2) {
+                if (direct == 0) {
+                    y1++;
+                }
+                else {
+                    y1--;
+                }
+            }
+            else if (checkForIsKill(y, x+1, array) != 2 or checkForIsKill(y, x-1, array) != 2) {
+                if (direct == 0) {
+                    x1++;
+                }
+                else {
+                    x1--;
+                }
+            }
+        }
+        if (checkForIsKill(y+1, x, array) != 2 or checkForIsKill(y-1, x, array) != 2) {
+            paint(x+x1, y+y1, array, "o");
+        }
+        else {
+            paint(x+x1, y+y1, array, "o");
+        }
+        x1 = 0, y1 = 0, direct = 1;
+    }
+}
+
+
+int botShoot(string myField[10][10], string botMyField[10][10], int &botHit) {
+    int x = 0, y = 0;
+    if (botCheckShoot(x, y, botMyField, "o") == 1) {
+        botCheckShoot(x, y, botMyField, " ");
+    }
+    else {
+        botCheckShoot(x, y, botMyField, "o");
+    }
+    if (myField[y][x] == " ") {
+        myField[y][x] = "*";
+        botMyField[y][x] = "*";
+        cout << "Противник промазал" << endl;
+    }
+    else if (myField[y][x] == "O") {
+        myField[y][x] = "X";
+        botMyField[y][x] = "X";
+        if (checkIsKill(x, y, myField) == 0) {
+            if (botHit == 0){
+                paint(x+1, y, botMyField, "o");
+                paint(x-1, y, botMyField, "o");
+                paint(x, y+1, botMyField, "o");
+                paint(x, y-1, botMyField, "o");
+                botHit = 1;
+            }
+            else if (botHit == 1) {
+                clearBotMyShoot(botMyField);
+                paintBotShoot(x, y, botMyField, botHit);
+            }
+        }
+        else {
+            clearBotMyShoot(botMyField);
+            paintingBotShoot(x, y, botMyField);
+            botHit = 0;
+        }
+        cout << "Противник попал" << endl;
+        return 1;
     }
     return 0;
 }
 
 
-void play(string myField[10][10], string myBotField[10][10], string botField[10][10]) {
-    int put, resume;
+void play(string myField[10][10], string myBotField[10][10], string botField[10][10], string botMyField[10][10]) {
+    int put, resume, botTry = 0, myTry = 0, botHit = 0, bot = 0, my = 0;
     string get;
 
     clear("Игра Расстановка кораблей");
@@ -417,7 +561,8 @@ void play(string myField[10][10], string myBotField[10][10], string botField[10]
             cout << endl << "Вам не повезло, вас атакуют первым" << endl;
         }
 
-        while (checkArray(myField, botField) == 0) {
+        while (checkArray(myField, botField, my, bot) == 0) {
+            bot = 0, my = 0;
             clear("Игра");
             cout << "Ваше поле" << endl;
             printArray(myField);
@@ -427,22 +572,32 @@ void play(string myField[10][10], string myBotField[10][10], string botField[10]
             if (first == 0) {
                 if (myShoot(botField, myBotField) != 1) {
                     first = 1;
+                    myTry++;
                 }
             }
             else {
-                if (botShoot(myField) != 1) {
+                if (botShoot(myField, botMyField, botHit) != 1) {
                     first = 0;
+                    botTry++;
                 }
             }
             wait();
         }
 
-        if (checkArray(myField, botField) == 1) {
-            cout << endl << "Победил противник!" << endl;
+        clear("Игра");
+        cout << "Ваше поле" << endl;
+        printArray(myField);
+        cout << "Поле противника" << endl;
+        printArray(botMyField);
+
+        bot = 0, my = 0;
+        if (checkArray(myField, botField, my, bot) == 1) {
+            cout << "Победил противник!" << endl;
         }
         else {
-            cout << endl << "Вы победили!" << endl;
+            cout << "Вы победили!" << endl;
         }
+        cout << "Ваши попытки: " << myTry << " " << "Бота попытки: " << botTry << endl << "Ваши удачные попытки: " << bot << " " << "Бота удачные попытки: " << my << endl;
         wait();
     }
 }
@@ -467,19 +622,19 @@ void rules() {
 }
 
 
-void game(string myField[10][10], string myBotField[10][10], string botField[10][10]) {
+void game(string myField[10][10], string myBotField[10][10], string botField[10][10], string botMyField[10][10]) {
     int ask = 0;
     clear("Главное меню");
     cout << "1 Играть" << endl << "2 Правила" << endl << "3 Выйти" << endl << endl;
     ask = input(1, 3);
     switch (ask) {
         case 1:
-            play(myField, myBotField, botField);
+            play(myField, myBotField, botField, botMyField);
             break;
         
         case 2:
             rules();
-            game(myField, myBotField, botField);
+            game(myField, myBotField, botField, botMyField);
             break;
         
         case 3:
@@ -493,7 +648,8 @@ void game(string myField[10][10], string myBotField[10][10], string botField[10]
 
 int main() {
     setlocale(LC_ALL, "Russian");
-    string myField[10][10], myBotField[10][10], botField[10][10];
-    fillArray(myField), fillArray(myBotField), fillArray(botField);
-    game(myField, myBotField, botField);
+    system("title Морской Бой");
+    string myField[10][10], myBotField[10][10], botField[10][10], botMyField[10][10];
+    fillArray(myField), fillArray(myBotField), fillArray(botField), fillArray(botMyField);
+    game(myField, myBotField, botField, botMyField);
 }
