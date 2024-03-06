@@ -588,7 +588,7 @@ void play(string myField[10][10], string myBotField[10][10], string botField[10]
         cout << "Ваше поле" << endl;
         printArray(myField);
         cout << "Поле противника" << endl;
-        printArray(botMyField);
+        printArray(myBotField);
 
         bot = 0, my = 0;
         if (checkArray(myField, botField, my, bot) == 1) {
