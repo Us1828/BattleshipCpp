@@ -159,6 +159,7 @@ int generationArray(string array[10][10], int size) {
 
 int checkPut(int x, int y, int direct, int size, string array[10][10]) {
     int x1 = x, y1 = y;
+
     if (direct == 0) {
         if (x + size-1 >= 0 and x + size-1 < 10) {
             for (int i = 0; i < size; i++) {
@@ -205,6 +206,19 @@ int checkPut(int x, int y, int direct, int size, string array[10][10]) {
 }
 
 
+void textPutArray(int &x, int &y, int &size, int &direct) {
+    cout << "Размер Х Количество" << endl;
+    cout << "4х1 3х2 2х3 1х4" << endl;
+    cout << "Размер корабля " << size << endl;
+    cout << endl << "Выберите точку по горизонтале 0-9" << endl << endl;
+    x = input(0, 9);
+    cout << endl << "Выберите точку по вертикале 0-9" << endl << endl;
+    y = input(0, 9);
+    cout << endl << "Выберите сторону, куда будет смотреть 1 горизонталь 2 вертикаль" << endl << endl;
+    direct = input(1 ,2);
+}
+
+
 void putArray(string array[10][10]) {
     int x, y, direct;
     int size = 4;
@@ -223,27 +237,12 @@ void putArray(string array[10][10]) {
         }
         clear("Игра Расстановка кораблей");
         printArray(array);
-        cout << "Размер Х Количество" << endl;
-        cout << "4х1 3х2 2х3 1х4" << endl;
-        cout << "Размер корабля " << size << endl;
-        cout << endl << "Выберите точку по горизонтале 0-9" << endl << endl;
-        x = input(0, 9);
-        cout << endl << "Выберите точку по вертикале 0-9" << endl << endl;
-        y = input(0, 9);
-        cout << endl << "Выберите сторону, куда будет смотреть 1 горизонталь 2 вертикаль" << endl << endl;
-        direct = input(1 ,2);
+        textPutArray(x, y, size, direct);
         while (checkPut(x, y, direct-1, size, array) != 1) {
             clear("Игра Расстановка кораблей");
             printArray(array);
-            cout << "4х1 3х2 2х3 1х4" << endl;
             cout << "Вы неправильно разместили корабль" << endl;
-            cout << "Размер корабля " << size << endl;
-            cout << endl << "Выберите точку по горизонтале 0-9" << endl << endl;
-            x = input(0, 9);
-            cout << endl << "Выберите точку по вертикале 0-9" << endl << endl;
-            y = input(0, 9);
-            cout << endl << "Выберите сторону, куда будет смотреть 1 горизонталь 2 вертикаль" << endl << endl;
-            direct = input(1, 2);
+            textPutArray(x, y, size, direct);
         }
     }
 }
@@ -577,7 +576,7 @@ void play(string myField[10][10], string myBotField[10][10], string botField[10]
             }
             else {
                 if (botShoot(myField, botMyField, botHit) != 1) {
-                    first = 0;
+                    first = 1;
                     botTry++;
                 }
             }
@@ -588,7 +587,7 @@ void play(string myField[10][10], string myBotField[10][10], string botField[10]
         cout << "Ваше поле" << endl;
         printArray(myField);
         cout << "Поле противника" << endl;
-        printArray(myBotField);
+        printArray(botField);
 
         bot = 0, my = 0;
         if (checkArray(myField, botField, my, bot) == 1) {
