@@ -10,7 +10,7 @@ mt19937 gen(rd());
 
 void clear(string text) {
     system("cls");
-    cout << "Ìîðñêîé Áîé" << " " << text << endl << endl;
+    cout << "ÐœÐ¾Ñ€ÑÐºÐ¾Ð¹ Ð‘Ð¾Ð¹" << " " << text << endl << endl;
 }
 
 
@@ -49,7 +49,7 @@ int input(int min, int max) {
     int ask;
     cin >> ask;
     while (cin.fail() or ask < min or ask > max) {
-        cout << endl <<  "Îøèáêà, âû íåïðàâèëüíî íàïèñàëè" << endl << endl;
+        cout << endl <<  "ÐžÑˆÐ¸Ð±ÐºÐ°, Ð²Ñ‹ Ð½ÐµÐ¿Ñ€Ð°Ð²Ð¸Ð»ÑŒÐ½Ð¾ Ð½Ð°Ð¿Ð¸ÑÐ°Ð»Ð¸" << endl << endl;
         cin.clear();
         cin.ignore(32767,'\n');
         cin >> ask;
@@ -59,8 +59,17 @@ int input(int min, int max) {
 
 
 void wait() {
-    cout << endl << "Íàæìèòå ëþáóþ êëàâèøó äëÿ ïðîäîëæåíèÿ" << endl << endl;
+    cout << endl << "ÐÐ°Ð¶Ð¼Ð¸Ñ‚Ðµ Ð»ÑŽÐ±ÑƒÑŽ ÐºÐ»Ð°Ð²Ð¸ÑˆÑƒ Ð´Ð»Ñ Ð¿Ñ€Ð¾Ð´Ð¾Ð»Ð¶ÐµÐ½Ð¸Ñ" << endl << endl;
     getch();
+}
+
+
+void printFields(string myField[10][10], string myBotField[10][10]) {
+    clear("Ð˜Ð³Ñ€Ð°");
+    cout << "Ð’Ð°ÑˆÐµ Ð¿Ð¾Ð»Ðµ" << endl;
+    printArray(myField);
+    cout << "ÐŸÐ¾Ð»Ðµ Ð¿Ñ€Ð¾Ñ‚Ð¸Ð²Ð½Ð¸ÐºÐ°" << endl;
+    printArray(myBotField);
 }
 
 
@@ -97,62 +106,52 @@ int checkForIsKill(int y, int x, string array[10][10]) {
 }
 
 
-int generationArray(string array[10][10], int size) {
+int directsGenerationArray(int direct, int x, int y, string array[10][10], int size) {
+    int x1 = x, y1 = y;
+
+    for (int i = 0; i < size; i++) {
+        if (check(y, x, array) == 0 and check(y+1, x, array) == 0 and check(y, x+1, array) == 0 and check(y-1, x, array) == 0 and check(y, x-1, array) == 0 and check(y+1, x+1, array) == 0 and check(y-1, x-1, array) == 0 and check(y+1, x-1, array) == 0 and check(y-1, x+1, array) == 0) {
+            direct == 0? x+= 1 : y+= 1;
+        }
+        else {
+            return 0;
+        }
+    }
+    
+    for (int i = 0; i < size; i++) {
+        array[y1][x1] = "O";
+        direct == 0? x1+= 1 : y1+= 1;
+    }
+    return 1;
+}
+
+
+void generationArray(string array[10][10], int size) {
     int direct = gen() % 2;
-    int x = gen() % 10;
-    int y = gen() % 10;
-    int x1 = x;
-    int y1 = y;
+    int x = gen() % 10; int x1 = x;
+    int y = gen() % 10; int y1 = y;
 
     if (direct == 0) {
         if (x + size-1 >= 0 and x + size-1 < 10) {
-            for (int i = 0; i < size; i++) {
-                if (check(y, x, array) == 0 and check(y+1, x, array) == 0 and check(y, x+1, array) == 0 and check(y-1, x, array) == 0 and check(y, x-1, array) == 0 and check(y+1, x+1, array) == 0 and check(y-1, x-1, array) == 0 and check(y+1, x-1, array) == 0 and check(y-1, x+1, array) == 0) {
-                    x += 1;
-                }
-                else {
-                    generationArray(array, size);
-                    return 0;
-                    break;
-                }
-            }
-            
-            for (int i = 0; i < size; i++) {
-                array[y1][x1] = "O";
-                x1 += 1;
+            if (directsGenerationArray(direct, x, y, array, size) == 0) {
+                generationArray(array, size);
             }
         }
         else {
             generationArray(array, size);
-            return 0;
         }
     }
     
     if (direct == 1) {
         if (y + size-1 >= 0 and y + size-1 < 10) {
-            for (int i = 0; i < size; i++) {
-                if (check(y, x, array) == 0 and check(y+1, x, array) == 0 and check(y, x+1, array) == 0 and check(y-1, x, array) == 0 and check(y, x-1, array) == 0 and check(y+1, x+1, array) == 0 and check(y-1, x-1, array) == 0 and check(y+1, x-1, array) == 0 and check(y-1, x+1, array) == 0) {
-                    y += 1;
-                }
-                else {
-                    generationArray(array, size);
-                    return 0;
-                    break;
-                }
-            }
-            
-            for (int i = 0; i < size; i++) {
-                array[y1][x1] = "O";
-                y1 += 1;
+            if (directsGenerationArray(direct, x, y, array, size) == 0) {
+                generationArray(array, size);
             }
         }
         else {
             generationArray(array, size);
-            return 0;
         }
     }
-
-    return 0;
 }
 
 
@@ -161,39 +160,19 @@ int checkPut(int x, int y, int direct, int size, string array[10][10]) {
 
     if (direct == 0) {
         if (x + size-1 >= 0 and x + size-1 < 10) {
-            for (int i = 0; i < size; i++) {
-                if (check(y, x, array) == 0 and check(y+1, x, array) == 0 and check(y, x+1, array) == 0 and check(y-1, x, array) == 0 and check(y, x-1, array) == 0 and check(y+1, x+1, array) == 0 and check(y-1, x-1, array) == 0 and check(y+1, x-1, array) == 0 and check(y-1, x+1, array) == 0) {
-                    x += 1;
-                }
-                else {
-                    return 0;
-                    break;
-                }
-            }
-            for (int i = 0; i < size; i++) {
-                array[y1][x1] = "O";
-                x1 += 1;
+            if (directsGenerationArray(direct, x, y, array, size) == 0) {
+                return 0;
             }
         }
         else {
             return 0;
         }
     }
-
+    
     if (direct == 1) {
         if (y + size-1 >= 0 and y + size-1 < 10) {
-            for (int i = 0; i < size; i++) {
-                if (check(y, x, array) == 0 and check(y+1, x, array) == 0 and check(y, x+1, array) == 0 and check(y-1, x, array) == 0 and check(y, x-1, array) == 0 and check(y+1, x+1, array) == 0 and check(y-1, x-1, array) == 0 and check(y+1, x-1, array) == 0 and check(y-1, x+1, array) == 0) {
-                    y += 1;
-                }
-                else {
-                    return 0;
-                    break;
-                }
-            }
-            for (int i = 0; i < size; i++) {
-                array[y1][x1] = "O";
-                y1 += 1;
+            if (directsGenerationArray(direct, x, y, array, size) == 0) {
+                return 0;
             }
         }
         else {
@@ -206,14 +185,14 @@ int checkPut(int x, int y, int direct, int size, string array[10][10]) {
 
 
 void textPutArray(int &x, int &y, int &size, int &direct) {
-    cout << "Ðàçìåð Õ Êîëè÷åñòâî" << endl;
-    cout << "4õ1 3õ2 2õ3 1õ4" << endl;
-    cout << "Ðàçìåð êîðàáëÿ " << size << endl;
-    cout << endl << "Âûáåðèòå òî÷êó ïî ãîðèçîíòàëå 0-9" << endl << endl;
+    cout << "Ð Ð°Ð·Ð¼ÐµÑ€ Ð¥ ÐšÐ¾Ð»Ð¸Ñ‡ÐµÑÑ‚Ð²Ð¾" << endl;
+    cout << "4Ñ…1 3Ñ…2 2Ñ…3 1Ñ…4" << endl;
+    cout << "Ð Ð°Ð·Ð¼ÐµÑ€ ÐºÐ¾Ñ€Ð°Ð±Ð»Ñ " << size << endl;
+    cout << endl << "Ð’Ñ‹Ð±ÐµÑ€Ð¸Ñ‚Ðµ Ñ‚Ð¾Ñ‡ÐºÑƒ Ð¿Ð¾ Ð³Ð¾Ñ€Ð¸Ð·Ð¾Ð½Ñ‚Ð°Ð»Ðµ 0-9" << endl << endl;
     x = input(0, 9);
-    cout << endl << "Âûáåðèòå òî÷êó ïî âåðòèêàëå 0-9" << endl << endl;
+    cout << endl << "Ð’Ñ‹Ð±ÐµÑ€Ð¸Ñ‚Ðµ Ñ‚Ð¾Ñ‡ÐºÑƒ Ð¿Ð¾ Ð²ÐµÑ€Ñ‚Ð¸ÐºÐ°Ð»Ðµ 0-9" << endl << endl;
     y = input(0, 9);
-    cout << endl << "Âûáåðèòå ñòîðîíó, êóäà áóäåò ñìîòðåòü 1 ãîðèçîíòàëü 2 âåðòèêàëü" << endl << endl;
+    cout << endl << "Ð’Ñ‹Ð±ÐµÑ€Ð¸Ñ‚Ðµ ÑÑ‚Ð¾Ñ€Ð¾Ð½Ñƒ, ÐºÑƒÐ´Ð° Ð±ÑƒÐ´ÐµÑ‚ ÑÐ¼Ð¾Ñ‚Ñ€ÐµÑ‚ÑŒ 1 Ð³Ð¾Ñ€Ð¸Ð·Ð¾Ð½Ñ‚Ð°Ð»ÑŒ 2 Ð²ÐµÑ€Ñ‚Ð¸ÐºÐ°Ð»ÑŒ" << endl << endl;
     direct = input(1 ,2);
 }
 
@@ -222,25 +201,17 @@ void putArray(string array[10][10]) {
     int x, y, direct;
     int size = 4;
     for (int i = 0; i < 10; i++) {
-        if (i == 0) {
-            size = 4;
-        }
-        if (i == 1 or i == 2) {
-            size = 3;
-        }
-        if (i == 3 or i == 4 or i == 5) {
-            size = 2;
-        }
-        if (i == 6 or i == 7 or i == 8 or i == 9) {
-            size = 1;
-        }
-        clear("Èãðà Ðàññòàíîâêà êîðàáëåé");
+        i == 0 ? size = 4 : size;
+        i == 1 or i == 2 ? size = 3 : size;
+        i == 3 or i == 4 or i == 5 ? size = 2 : size;
+        i == 6 or i == 7 or i == 8 or i == 9 ? size = 1 : size;
+        clear("Ð˜Ð³Ñ€Ð° Ð Ð°ÑÑÑ‚Ð°Ð½Ð¾Ð²ÐºÐ° ÐºÐ¾Ñ€Ð°Ð±Ð»ÐµÐ¹");
         printArray(array);
         textPutArray(x, y, size, direct);
         while (checkPut(x, y, direct-1, size, array) != 1) {
-            clear("Èãðà Ðàññòàíîâêà êîðàáëåé");
+            clear("Ð˜Ð³Ñ€Ð° Ð Ð°ÑÑÑ‚Ð°Ð½Ð¾Ð²ÐºÐ° ÐºÐ¾Ñ€Ð°Ð±Ð»ÐµÐ¹");
             printArray(array);
-            cout << "Âû íåïðàâèëüíî ðàçìåñòèëè êîðàáëü" << endl;
+            cout << "Ð’Ñ‹ Ð½ÐµÐ¿Ñ€Ð°Ð²Ð¸Ð»ÑŒÐ½Ð¾ Ñ€Ð°Ð·Ð¼ÐµÑÑ‚Ð¸Ð»Ð¸ ÐºÐ¾Ñ€Ð°Ð±Ð»ÑŒ" << endl;
             textPutArray(x, y, size, direct);
         }
     }
@@ -267,10 +238,6 @@ int checkArray(string myField[10][10], string botField[10][10], int &my, int &bo
             if (myField[d][i] == "X") {
                 my++;
             }
-        }
-    }
-    for (int i = 0; i < 10; i++) {
-        for (int d = 0; d < 10; d++) {
             if (botField[d][i] == "X") {
                 bot++;
             }
@@ -297,20 +264,10 @@ int checkIsKill(int x, int y, string array[10][10]) {
     for (int i = 0; i < 2; i++) {
         while (checkForIsKill(y+y1, x+x1, array) != 2) {
             if (checkForIsKill(y+1, x, array) != 2 or checkForIsKill(y-1, x, array) != 2) {
-                if (direct == 0) {
-                    y1++;
-                }
-                else {
-                    y1--;
-                }
+                direct == 0 ? y1++ : y1--;
             }
             else if (checkForIsKill(y, x+1, array) != 2 or checkForIsKill(y, x-1, array) != 2) {
-                if (direct == 0) {
-                    x1++;
-                }
-                else {
-                    x1--;
-                }
+                direct == 0 ? x1++ : x1--;
             }
             if (checkForIsKill(y+y1, x+x1, array) == 0) {
                 return 0;
@@ -324,35 +281,35 @@ int checkIsKill(int x, int y, string array[10][10]) {
 
 int myShoot(string botField[10][10], string myBotField[10][10]) {
     int x, y;
-    cout << "Àòàêóåòå âû" << endl;
-    cout << endl << "Âûáåðèòå òî÷êó ïî ãîðèçîíòàëå 0-9" << endl << endl;
+    cout << "ÐÑ‚Ð°ÐºÑƒÐµÑ‚Ðµ Ð²Ñ‹" << endl;
+    cout << endl << "Ð’Ñ‹Ð±ÐµÑ€Ð¸Ñ‚Ðµ Ñ‚Ð¾Ñ‡ÐºÑƒ Ð¿Ð¾ Ð³Ð¾Ñ€Ð¸Ð·Ð¾Ð½Ñ‚Ð°Ð»Ðµ 0-9" << endl << endl;
     x = input(0, 9);
-    cout << endl << "Âûáåðèòå òî÷êó ïî âåðòèêàëå 0-9" << endl << endl;
+    cout << endl << "Ð’Ñ‹Ð±ÐµÑ€Ð¸Ñ‚Ðµ Ñ‚Ð¾Ñ‡ÐºÑƒ Ð¿Ð¾ Ð²ÐµÑ€Ñ‚Ð¸ÐºÐ°Ð»Ðµ 0-9" << endl << endl;
     y = input(0, 9);
     if (botField[y][x] == "O") {
-        cout << "Âû ïîïàëè è ";
+        cout << "Ð’Ñ‹ Ð¿Ð¾Ð¿Ð°Ð»Ð¸ Ð¸ ";
         if (checkIsKill(x, y, botField) == 0) {
-            cout << "ðàíèëè êîðàáëü" << endl;
+            cout << "Ñ€Ð°Ð½Ð¸Ð»Ð¸ ÐºÐ¾Ñ€Ð°Ð±Ð»ÑŒ" << endl;
         }
         else {
-            cout << "ïîòîïèëè êîðàáëü" << endl;
+            cout << "Ð¿Ð¾Ñ‚Ð¾Ð¿Ð¸Ð»Ð¸ ÐºÐ¾Ñ€Ð°Ð±Ð»ÑŒ" << endl;
         }
         botField[y][x] = "X";
         myBotField[y][x] = "X";
         return 1;
     }
     else if (botField[y][x] == "X") {
-        cout << endl << "Âû ïðîìàçàëè, âû òóäà óæå ñòðåëÿëè" << endl;
+        cout << endl << "Ð’Ñ‹ Ð¿Ñ€Ð¾Ð¼Ð°Ð·Ð°Ð»Ð¸, Ð²Ñ‹ Ñ‚ÑƒÐ´Ð° ÑƒÐ¶Ðµ ÑÑ‚Ñ€ÐµÐ»ÑÐ»Ð¸" << endl;
         botField[y][x] = "X";
         myBotField[y][x] = "X";
     }
     else if (botField[y][x] == "*") {
-        cout << endl << "Âû ïðîìàçàëè, âû òóäà óæå ñòðåëÿëè" << endl;
+        cout << endl << "Ð’Ñ‹ Ð¿Ñ€Ð¾Ð¼Ð°Ð·Ð°Ð»Ð¸, Ð²Ñ‹ Ñ‚ÑƒÐ´Ð° ÑƒÐ¶Ðµ ÑÑ‚Ñ€ÐµÐ»ÑÐ»Ð¸" << endl;
         botField[y][x] = "*";
         myBotField[y][x] = "*";
     }
     else {
-        cout << endl << "Âû ïðîìàçàëè" << endl;
+        cout << endl << "Ð’Ñ‹ Ð¿Ñ€Ð¾Ð¼Ð°Ð·Ð°Ð»Ð¸" << endl;
         botField[y][x] = "*";
         myBotField[y][x] = "*";
     }
@@ -408,22 +365,12 @@ void paintingBotShoot(int x, int y, string array[10][10]) {
                 if (checkForIsKill(y+1, x, array) != 2 or checkForIsKill(y-1, x, array) != 2) {
                     paint(x+x1+1, y+y1, array, ".");
                     paint(x+x1-1, y+y1, array, ".");
-                    if (direct == 0) {
-                        y1++;
-                    }
-                    else {
-                        y1--;
-                    }
+                    direct == 0 ? y1++ : y1--;
                 }
                 else if (checkForIsKill(y, x+1, array) != 2 or checkForIsKill(y, x-1, array) != 2) {
                     paint(x+x1, y+y1+1, array, ".");
                     paint(x+x1, y+y1-1, array, ".");
-                    if (direct == 0) {
-                        x1++;
-                    }
-                    else {
-                        x1--;
-                    }
+                    direct == 0 ? x1++ : x1--;
                 }
             }
             if (checkForIsKill(y+1, x, array) != 2 or checkForIsKill(y-1, x, array) != 2) {
@@ -458,20 +405,10 @@ void paintBotShoot(int x, int y, string array[10][10], int botHit) {
     for (int i = 0; i < 2; i++) {
         while (checkForIsKill(y+y1, x+x1, array) != 2) {
             if (checkForIsKill(y+1, x, array) != 2 or checkForIsKill(y-1, x, array) != 2) {
-                if (direct == 0) {
-                    y1++;
-                }
-                else {
-                    y1--;
-                }
+                direct == 0 ? y1++ : y1--;
             }
             else if (checkForIsKill(y, x+1, array) != 2 or checkForIsKill(y, x-1, array) != 2) {
-                if (direct == 0) {
-                    x1++;
-                }
-                else {
-                    x1--;
-                }
+                direct == 0 ? x1++ : x1--;
             }
         }
         paint(x+x1, y+y1, array, "o");
@@ -482,16 +419,11 @@ void paintBotShoot(int x, int y, string array[10][10], int botHit) {
 
 int botShoot(string myField[10][10], string botMyField[10][10], int &botHit) {
     int x = 0, y = 0;
-    if (botCheckShoot(x, y, botMyField, "o") == 1) {
-        botCheckShoot(x, y, botMyField, " ");
-    }
-    else {
-        botCheckShoot(x, y, botMyField, "o");
-    }
+    botCheckShoot(x, y, botMyField, "o") == 1 ? botCheckShoot(x, y, botMyField, " ") : botCheckShoot(x, y, botMyField, "o");
     if (myField[y][x] == " ") {
         myField[y][x] = "*";
         botMyField[y][x] = "*";
-        cout << "Ïðîòèâíèê ïðîìàçàë" << endl;
+        cout << "ÐŸÑ€Ð¾Ñ‚Ð¸Ð²Ð½Ð¸Ðº Ð¿Ñ€Ð¾Ð¼Ð°Ð·Ð°Ð»" << endl;
     }
     else if (myField[y][x] == "O") {
         myField[y][x] = "X";
@@ -514,7 +446,7 @@ int botShoot(string myField[10][10], string botMyField[10][10], int &botHit) {
             paintingBotShoot(x, y, botMyField);
             botHit = 0;
         }
-        cout << "Ïðîòèâíèê ïîïàë" << endl;
+        cout << "ÐŸÑ€Ð¾Ñ‚Ð¸Ð²Ð½Ð¸Ðº Ð¿Ð¾Ð¿Ð°Ð»" << endl;
         return 1;
     }
     return 0;
@@ -524,72 +456,42 @@ int botShoot(string myField[10][10], string botMyField[10][10], int &botHit) {
 void play(string myField[10][10], string myBotField[10][10], string botField[10][10], string botMyField[10][10]) {
     int put, resume, botTry = 0, myTry = 0, botHit = 0, bot = 0, my = 0;
 
-    clear("Èãðà Ðàññòàíîâêà êîðàáëåé");
-    cout << "1 Âû ñòàâèòå êîðàáëè èëè 2 ðàíäîì?" << endl << endl;
-    put = input(1, 2);
+    clear("Ð˜Ð³Ñ€Ð° Ð Ð°ÑÑÑ‚Ð°Ð½Ð¾Ð²ÐºÐ° ÐºÐ¾Ñ€Ð°Ð±Ð»ÐµÐ¹");
     fullGenerationArray(botField);
-    if (put == 1) {
-        putArray(myField);
-    }
-    else {
-        fullGenerationArray(myField);
-    }
-
-    clear("Èãðà");
-    cout << "Âàøå ïîëå" << endl;
-    printArray(myField);
-    cout << "Ïîëå ïðîòèâíèêà" << endl;
-    printArray(myBotField);
-
-    cout << "1 Íà÷àòü èãðó 2 Âûéòè" << endl << endl;
+    cout << "1 Ð’Ñ‹ ÑÑ‚Ð°Ð²Ð¸Ñ‚Ðµ ÐºÐ¾Ñ€Ð°Ð±Ð»Ð¸ Ð¸Ð»Ð¸ 2 Ñ€Ð°Ð½Ð´Ð¾Ð¼?" << endl << endl;
+    put = input(1, 2);
+    put == 1 ? putArray(myField) : fullGenerationArray(myField);
+    printFields(myField, myBotField);
+    cout << "1 ÐÐ°Ñ‡Ð°Ñ‚ÑŒ Ð¸Ð³Ñ€Ñƒ 2 Ð’Ñ‹Ð¹Ñ‚Ð¸" << endl << endl;
     resume = input(1, 2);
 
     if (resume == 1) {
         int first = gen() % 2;
-        if (first == 0) {
-            cout << endl << "Âàì ïîâåçëî, âû àòàêóåòå ïåðâûì" << endl;
-        }
-        else{
-            cout << endl << "Âàì íå ïîâåçëî, âàñ àòàêóþò ïåðâûì" << endl;
-        }
+        first == 0? cout << endl << "Ð’Ð°Ð¼ Ð¿Ð¾Ð²ÐµÐ·Ð»Ð¾, Ð²Ñ‹ Ð°Ñ‚Ð°ÐºÑƒÐµÑ‚Ðµ Ð¿ÐµÑ€Ð²Ñ‹Ð¼" << endl : cout << endl << "Ð’Ð°Ð¼ Ð½Ðµ Ð¿Ð¾Ð²ÐµÐ·Ð»Ð¾, Ð²Ð°Ñ Ð°Ñ‚Ð°ÐºÑƒÑŽÑ‚ Ð¿ÐµÑ€Ð²Ñ‹Ð¼" << endl;
 
         while (checkArray(myField, botField, my, bot) == 0) {
             bot = 0, my = 0;
-            clear("Èãðà");
-            cout << "Âàøå ïîëå" << endl;
-            printArray(myField);
-            cout << "Ïîëå ïðîòèâíèêà" << endl;
-            printArray(myBotField);
-
+            printFields(myField, myBotField);
             if (first == 0) {
-                if (myShoot(botField, myBotField) != 1) {
-                    first = 1;
-                    myTry++;
-                }
+                myTry++;
+                myShoot(botField, myBotField) != 1 ? first = 1 : first = 0;
             }
             else {
-                if (botShoot(myField, botMyField, botHit) != 1) {
-                    first = 0;
-                    botTry++;
-                }
+                botTry++;
+                botShoot(myField, botMyField, botHit) != 1 ? first = 0 : first = 1;
             }
             wait();
         }
 
-        clear("Èãðà");
-        cout << "Âàøå ïîëå" << endl;
+        clear("Ð˜Ð³Ñ€Ð°");
+        cout << "Ð’Ð°ÑˆÐµ Ð¿Ð¾Ð»Ðµ" << endl;
         printArray(myField);
-        cout << "Ïîëå ïðîòèâíèêà" << endl;
+        cout << "ÐŸÐ¾Ð»Ðµ Ð¿Ñ€Ð¾Ñ‚Ð¸Ð²Ð½Ð¸ÐºÐ°" << endl;
         printArray(botField);
 
         bot = 0, my = 0;
-        if (checkArray(myField, botField, my, bot) == 1) {
-            cout << "Ïîáåäèë ïðîòèâíèê!" << endl;
-        }
-        else {
-            cout << "Âû ïîáåäèëè!" << endl;
-        }
-        cout << "Âàøè ïîïûòêè: " << myTry << " " << "Áîòà ïîïûòêè: " << botTry << endl << "Âàøè óäà÷íûå ïîïûòêè: " << bot << " " << "Áîòà óäà÷íûå ïîïûòêè: " << my << endl;
+        checkArray(myField, botField, my, bot) == 1 ? cout << "ÐŸÐ¾Ð±ÐµÐ´Ð¸Ð» Ð¿Ñ€Ð¾Ñ‚Ð¸Ð²Ð½Ð¸Ðº!" << endl : cout << "Ð’Ñ‹ Ð¿Ð¾Ð±ÐµÐ´Ð¸Ð»Ð¸!" << endl;
+        cout << "Ð’ÑÐµÐ³Ð¾ Ð²Ð°ÑˆÐ¸Ñ… Ð¿Ð¾Ð¿Ñ‹Ñ‚Ð¾Ðº: " << myTry << " " << "Ð’ÑÐµÐ³Ð¾ Ð¿Ñ€Ð¾Ñ‚Ð¸Ð²Ð½Ð¸ÐºÐ° Ð¿Ð¾Ð¿Ñ‹Ñ‚Ð¾Ðº: " << botTry << endl << "Ð’ÑÐµÐ³Ð¾ Ð²Ð°ÑˆÐ¸Ñ… ÑƒÐ´Ð°Ñ‡Ð½Ñ‹Ñ… Ð¿Ð¾Ð¿Ñ‹Ñ‚Ð¾Ðº: " << bot << " " << "Ð’ÑÐµÐ³Ð¾ Ð¿Ñ€Ð¾Ñ‚Ð¸Ð²Ð½Ð¸ÐºÐ° ÑƒÐ´Ð°Ñ‡Ð½Ñ‹Ñ… Ð¿Ð¾Ð¿Ñ‹Ñ‚Ð¾Ðº: " << my << endl;
         wait();
     }
 }
@@ -598,26 +500,26 @@ void play(string myField[10][10], string myBotField[10][10], string botField[10]
 void rules() {
     string array[10][10]; fillArray(array);
     fullGenerationArray(array);
-    clear("Ïðàâèëà");
-    cout << "Îòâåòû íà âîïðîñû äàþòñÿ ÷èñëîì, êîòîðûé çàäàí â îòâåòå" << endl;
-    cout << "Â èãðå ñóùåñòâóåò âàøå ïîëå è ïîëå ïðîòèâíèêà, âñå îíè 10õ10 êëåòîê" << endl << "Â èãðå ïîëüçîâàòåëþ âèäíî 2 ïîëÿ - åãî ëè÷íîå è ïîëå ïðîòèâíèêà äëÿ óäîáñòâà ïîïàäàíèÿ" << endl;
-    cout << "Ïîñëå íà÷àëà èãðû âûáîð - èãðîê ñàì ëè ðàññòàíîâèò êîðàáëè, èëè çà íåãî ðàíäîì ñäåëàåò" << endl;
-    cout << "Ïðè ðàññòàíîâêè êîðàáëåé ñóùåñòâóþò ïðàâèëà." << endl << "Äîëæíî áûòü Êîëè÷åñòâî ïàëóá x Êîëè÷åñòâî êîðàáëåé â òàêîì âèäå 4x1 3x2 2x3 1x4" << endl;
-    cout << "Êîðàáëè íå äîëæíû ñîïðèêàñàòüñÿ, à áûòü â ðàññòîÿíèè äðóã îò äðóãà â 1 êëåòêó" << endl;
-    cout << "Âèä ïðàâèëüíîé ðàññòàíîâêè ïðè ðàíäîì âàðèàíòå:" << endl << endl;
+    clear("ÐŸÑ€Ð°Ð²Ð¸Ð»Ð°");
+    cout << "ÐžÑ‚Ð²ÐµÑ‚Ñ‹ Ð½Ð° Ð²Ð¾Ð¿Ñ€Ð¾ÑÑ‹ Ð´Ð°ÑŽÑ‚ÑÑ Ñ‡Ð¸ÑÐ»Ð¾Ð¼, ÐºÐ¾Ñ‚Ð¾Ñ€Ñ‹Ð¹ Ð·Ð°Ð´Ð°Ð½ Ð² Ð¾Ñ‚Ð²ÐµÑ‚Ðµ" << endl;
+    cout << "Ð’ Ð¸Ð³Ñ€Ðµ ÑÑƒÑ‰ÐµÑÑ‚Ð²ÑƒÐµÑ‚ Ð²Ð°ÑˆÐµ Ð¿Ð¾Ð»Ðµ Ð¸ Ð¿Ð¾Ð»Ðµ Ð¿Ñ€Ð¾Ñ‚Ð¸Ð²Ð½Ð¸ÐºÐ°, Ð²ÑÐµ Ð¾Ð½Ð¸ 10Ñ…10 ÐºÐ»ÐµÑ‚Ð¾Ðº" << endl << "Ð’ Ð¸Ð³Ñ€Ðµ Ð¿Ð¾Ð»ÑŒÐ·Ð¾Ð²Ð°Ñ‚ÐµÐ»ÑŽ Ð²Ð¸Ð´Ð½Ð¾ 2 Ð¿Ð¾Ð»Ñ - ÐµÐ³Ð¾ Ð»Ð¸Ñ‡Ð½Ð¾Ðµ Ð¸ Ð¿Ð¾Ð»Ðµ Ð¿Ñ€Ð¾Ñ‚Ð¸Ð²Ð½Ð¸ÐºÐ° Ð´Ð»Ñ ÑƒÐ´Ð¾Ð±ÑÑ‚Ð²Ð° Ð¿Ð¾Ð¿Ð°Ð´Ð°Ð½Ð¸Ñ" << endl;
+    cout << "ÐŸÐ¾ÑÐ»Ðµ Ð½Ð°Ñ‡Ð°Ð»Ð° Ð¸Ð³Ñ€Ñ‹ Ð²Ñ‹Ð±Ð¾Ñ€ - Ð¸Ð³Ñ€Ð¾Ðº ÑÐ°Ð¼ Ð»Ð¸ Ñ€Ð°ÑÑÑ‚Ð°Ð½Ð¾Ð²Ð¸Ñ‚ ÐºÐ¾Ñ€Ð°Ð±Ð»Ð¸, Ð¸Ð»Ð¸ Ð·Ð° Ð½ÐµÐ³Ð¾ Ñ€Ð°Ð½Ð´Ð¾Ð¼ ÑÐ´ÐµÐ»Ð°ÐµÑ‚" << endl;
+    cout << "ÐŸÑ€Ð¸ Ñ€Ð°ÑÑÑ‚Ð°Ð½Ð¾Ð²ÐºÐ¸ ÐºÐ¾Ñ€Ð°Ð±Ð»ÐµÐ¹ ÑÑƒÑ‰ÐµÑÑ‚Ð²ÑƒÑŽÑ‚ Ð¿Ñ€Ð°Ð²Ð¸Ð»Ð°." << endl << "Ð”Ð¾Ð»Ð¶Ð½Ð¾ Ð±Ñ‹Ñ‚ÑŒ ÐšÐ¾Ð»Ð¸Ñ‡ÐµÑÑ‚Ð²Ð¾ Ð¿Ð°Ð»ÑƒÐ± x ÐšÐ¾Ð»Ð¸Ñ‡ÐµÑÑ‚Ð²Ð¾ ÐºÐ¾Ñ€Ð°Ð±Ð»ÐµÐ¹ Ð² Ñ‚Ð°ÐºÐ¾Ð¼ Ð²Ð¸Ð´Ðµ 4x1 3x2 2x3 1x4" << endl;
+    cout << "ÐšÐ¾Ñ€Ð°Ð±Ð»Ð¸ Ð½Ðµ Ð´Ð¾Ð»Ð¶Ð½Ñ‹ ÑÐ¾Ð¿Ñ€Ð¸ÐºÐ°ÑÐ°Ñ‚ÑŒÑÑ, Ð° Ð±Ñ‹Ñ‚ÑŒ Ð² Ñ€Ð°ÑÑÑ‚Ð¾ÑÐ½Ð¸Ð¸ Ð´Ñ€ÑƒÐ³ Ð¾Ñ‚ Ð´Ñ€ÑƒÐ³Ð° Ð² 1 ÐºÐ»ÐµÑ‚ÐºÑƒ" << endl;
+    cout << "Ð’Ð¸Ð´ Ð¿Ñ€Ð°Ð²Ð¸Ð»ÑŒÐ½Ð¾Ð¹ Ñ€Ð°ÑÑÑ‚Ð°Ð½Ð¾Ð²ÐºÐ¸ Ð¿Ñ€Ð¸ Ñ€Ð°Ð½Ð´Ð¾Ð¼ Ð²Ð°Ñ€Ð¸Ð°Ð½Ñ‚Ðµ:" << endl << endl;
     printArray(array);
-    cout << "Öåëàÿ ïàëóáà êîðàáëÿ ïîçíà÷àåòñÿ O, ðàçðóøåííàÿ ïàëóáà êîðàáëÿ ïîçíà÷àåòñÿ X, ïóñòîå ìåñòî íèêàê íå ïîçíà÷àåòñÿ, ïðîìàçàííàÿ êëåòêà ïðè âûñòðåëå ïîçíà÷àåòñÿ *" << endl << endl;
-    cout << "Ïîñëå ðàññòàíîâêè êîðàáëåé ðàíäîìíî âûáèðàåòñÿ ïåðâûé êòî ñòðåëÿåò - âû èëè ïðîòèâíèê" << endl; 
-    cout << "Ïðè ñòðåëüáå ñëåäóåò ïîìíèòü, ÷òî áåññìûñëåííî ñòðåëÿòü â îäíó è òó æå êëåòêó, è ïîñëå êàæäîãî âûñòðåëà ïèøåòñÿ - ïîïàë èëè íå ïîïàë, à òàêæå ðàíèë èëè ïîòîïèë êîðàáëü" << endl;
-    cout << "Ïåðâûé èãðîê, êîòîðûé ïîòîïèë âñå ïàëóáû ó âñåõ êîðàáëåé - ïîáåæäàåò" << endl;
+    cout << "Ð¦ÐµÐ»Ð°Ñ Ð¿Ð°Ð»ÑƒÐ±Ð° ÐºÐ¾Ñ€Ð°Ð±Ð»Ñ Ð¿Ð¾Ð·Ð½Ð°Ñ‡Ð°ÐµÑ‚ÑÑ O, Ñ€Ð°Ð·Ñ€ÑƒÑˆÐµÐ½Ð½Ð°Ñ Ð¿Ð°Ð»ÑƒÐ±Ð° ÐºÐ¾Ñ€Ð°Ð±Ð»Ñ Ð¿Ð¾Ð·Ð½Ð°Ñ‡Ð°ÐµÑ‚ÑÑ X, Ð¿ÑƒÑÑ‚Ð¾Ðµ Ð¼ÐµÑÑ‚Ð¾ Ð½Ð¸ÐºÐ°Ðº Ð½Ðµ Ð¿Ð¾Ð·Ð½Ð°Ñ‡Ð°ÐµÑ‚ÑÑ, Ð¿Ñ€Ð¾Ð¼Ð°Ð·Ð°Ð½Ð½Ð°Ñ ÐºÐ»ÐµÑ‚ÐºÐ° Ð¿Ñ€Ð¸ Ð²Ñ‹ÑÑ‚Ñ€ÐµÐ»Ðµ Ð¿Ð¾Ð·Ð½Ð°Ñ‡Ð°ÐµÑ‚ÑÑ *" << endl << endl;
+    cout << "ÐŸÐ¾ÑÐ»Ðµ Ñ€Ð°ÑÑÑ‚Ð°Ð½Ð¾Ð²ÐºÐ¸ ÐºÐ¾Ñ€Ð°Ð±Ð»ÐµÐ¹ Ñ€Ð°Ð½Ð´Ð¾Ð¼Ð½Ð¾ Ð²Ñ‹Ð±Ð¸Ñ€Ð°ÐµÑ‚ÑÑ Ð¿ÐµÑ€Ð²Ñ‹Ð¹ ÐºÑ‚Ð¾ ÑÑ‚Ñ€ÐµÐ»ÑÐµÑ‚ - Ð²Ñ‹ Ð¸Ð»Ð¸ Ð¿Ñ€Ð¾Ñ‚Ð¸Ð²Ð½Ð¸Ðº" << endl; 
+    cout << "ÐŸÑ€Ð¸ ÑÑ‚Ñ€ÐµÐ»ÑŒÐ±Ðµ ÑÐ»ÐµÐ´ÑƒÐµÑ‚ Ð¿Ð¾Ð¼Ð½Ð¸Ñ‚ÑŒ, Ñ‡Ñ‚Ð¾ Ð±ÐµÑÑÐ¼Ñ‹ÑÐ»ÐµÐ½Ð½Ð¾ ÑÑ‚Ñ€ÐµÐ»ÑÑ‚ÑŒ Ð² Ð¾Ð´Ð½Ñƒ Ð¸ Ñ‚Ñƒ Ð¶Ðµ ÐºÐ»ÐµÑ‚ÐºÑƒ, Ð¸ Ð¿Ð¾ÑÐ»Ðµ ÐºÐ°Ð¶Ð´Ð¾Ð³Ð¾ Ð²Ñ‹ÑÑ‚Ñ€ÐµÐ»Ð° Ð¿Ð¸ÑˆÐµÑ‚ÑÑ - Ð¿Ð¾Ð¿Ð°Ð» Ð¸Ð»Ð¸ Ð½Ðµ Ð¿Ð¾Ð¿Ð°Ð», Ð° Ñ‚Ð°ÐºÐ¶Ðµ Ñ€Ð°Ð½Ð¸Ð» Ð¸Ð»Ð¸ Ð¿Ð¾Ñ‚Ð¾Ð¿Ð¸Ð» ÐºÐ¾Ñ€Ð°Ð±Ð»ÑŒ" << endl;
+    cout << "ÐŸÐµÑ€Ð²Ñ‹Ð¹ Ð¸Ð³Ñ€Ð¾Ðº, ÐºÐ¾Ñ‚Ð¾Ñ€Ñ‹Ð¹ Ð¿Ð¾Ñ‚Ð¾Ð¿Ð¸Ð» Ð²ÑÐµ Ð¿Ð°Ð»ÑƒÐ±Ñ‹ Ñƒ Ð²ÑÐµÑ… ÐºÐ¾Ñ€Ð°Ð±Ð»ÐµÐ¹ - Ð¿Ð¾Ð±ÐµÐ¶Ð´Ð°ÐµÑ‚" << endl;
     wait();
 }
 
 
 void game(string myField[10][10], string myBotField[10][10], string botField[10][10], string botMyField[10][10]) {
     int ask = 0;
-    clear("Ãëàâíîå ìåíþ");
-    cout << "1 Èãðàòü" << endl << "2 Ïðàâèëà" << endl << "3 Âûéòè" << endl << endl;
+    clear("Ð“Ð»Ð°Ð²Ð½Ð¾Ðµ Ð¼ÐµÐ½ÑŽ");
+    cout << "1 Ð˜Ð³Ñ€Ð°Ñ‚ÑŒ" << endl << "2 ÐŸÑ€Ð°Ð²Ð¸Ð»Ð°" << endl << "3 Ð’Ñ‹Ð¹Ñ‚Ð¸" << endl << endl;
     ask = input(1, 3);
     switch (ask) {
         case 1:
@@ -640,9 +542,8 @@ void game(string myField[10][10], string myBotField[10][10], string botField[10]
 
 int main() {
     setlocale(LC_ALL, "Russian");
-    system("title Ìîðñêîé Áîé");
+    system("title ÐœÐ¾Ñ€ÑÐºÐ¾Ð¹ Ð‘Ð¾Ð¹");
     string myField[10][10], myBotField[10][10], botField[10][10], botMyField[10][10];
     fillArray(myField), fillArray(myBotField), fillArray(botField), fillArray(botMyField);
     game(myField, myBotField, botField, botMyField);
 }
-
