@@ -279,65 +279,6 @@ int checkIsKill(int x, int y, string array[10][10]) {
 }
 
 
-int myShoot(string botField[10][10], string myBotField[10][10]) {
-    int x, y;
-    cout << "Атакуете вы" << endl;
-    cout << endl << "Выберите точку по горизонтале 0-9" << endl << endl;
-    x = input(0, 9);
-    cout << endl << "Выберите точку по вертикале 0-9" << endl << endl;
-    y = input(0, 9);
-    if (botField[y][x] == "O") {
-        cout << "Вы попали и ";
-        if (checkIsKill(x, y, botField) == 0) {
-            cout << "ранили корабль" << endl;
-        }
-        else {
-            cout << "потопили корабль" << endl;
-        }
-        botField[y][x] = "X";
-        myBotField[y][x] = "X";
-        return 1;
-    }
-    else if (botField[y][x] == "X") {
-        cout << endl << "Вы промазали, вы туда уже стреляли" << endl;
-        botField[y][x] = "X";
-        myBotField[y][x] = "X";
-    }
-    else if (botField[y][x] == "*") {
-        cout << endl << "Вы промазали, вы туда уже стреляли" << endl;
-        botField[y][x] = "*";
-        myBotField[y][x] = "*";
-    }
-    else {
-        cout << endl << "Вы промазали" << endl;
-        botField[y][x] = "*";
-        myBotField[y][x] = "*";
-    }
-    return 0;
-}
-
-
-int botCheckShoot(int &x, int &y, string botMyField[10][10], string text){
-    vector<int> arrX(0);
-    vector<int> arrY(0);
-    for (int i = 0; i < 10; i++){
-        for (int d = 0; d < 10; d++){
-            if (botMyField[i][d] == text){
-                arrX.push_back(d);
-                arrY.push_back(i);
-            }
-        }
-    }
-    if (arrX.size() > 0) {
-        int num = gen() % (arrX.size());
-        x = arrX[num];
-        y = arrY[num];
-        return 0;
-    }
-    return 1;
-}
-
-
 void paint(int x, int y, string array[10][10], string text) {
     if (x >= 0 and x < 10 and y >= 0 and y < 10) {
         if (array[y][x] == " " or array[y][x] == "o") {
@@ -386,6 +327,66 @@ void paintingBotShoot(int x, int y, string array[10][10]) {
             x1 = 0, y1 = 0, direct = 1;
         }
     }
+}
+
+
+int myShoot(string botField[10][10], string myBotField[10][10]) {
+    int x, y;
+    cout << "Атакуете вы" << endl;
+    cout << endl << "Выберите точку по горизонтале 0-9" << endl << endl;
+    x = input(0, 9);
+    cout << endl << "Выберите точку по вертикале 0-9" << endl << endl;
+    y = input(0, 9);
+    if (botField[y][x] == "O") {
+        botField[y][x] = "X";
+        myBotField[y][x] = "X";
+        cout << "Вы попали и ";
+        if (checkIsKill(x, y, botField) == 0) {
+            cout << "ранили корабль" << endl;
+        }
+        else {
+            cout << "потопили корабль" << endl;
+            paintingBotShoot(x, y, myBotField);
+        }
+        return 1;
+    }
+    else if (botField[y][x] == "X") {
+        cout << endl << "Вы промазали, вы туда уже стреляли" << endl;
+        botField[y][x] = "X";
+        myBotField[y][x] = "X";
+    }
+    else if (botField[y][x] == "*") {
+        cout << endl << "Вы промазали, вы туда уже стреляли" << endl;
+        botField[y][x] = "*";
+        myBotField[y][x] = "*";
+    }
+    else {
+        cout << endl << "Вы промазали" << endl;
+        botField[y][x] = "*";
+        myBotField[y][x] = "*";
+    }
+    return 0;
+}
+
+
+int botCheckShoot(int &x, int &y, string botMyField[10][10], string text){
+    vector<int> arrX(0);
+    vector<int> arrY(0);
+    for (int i = 0; i < 10; i++){
+        for (int d = 0; d < 10; d++){
+            if (botMyField[i][d] == text){
+                arrX.push_back(d);
+                arrY.push_back(i);
+            }
+        }
+    }
+    if (arrX.size() > 0) {
+        int num = gen() % (arrX.size());
+        x = arrX[num];
+        y = arrY[num];
+        return 0;
+    }
+    return 1;
 }
 
 
@@ -464,7 +465,6 @@ void play(string myField[10][10], string myBotField[10][10], string botField[10]
     printFields(myField, myBotField);
     cout << "1 Начать игру 2 Выйти" << endl << endl;
     resume = input(1, 2);
-
     if (resume == 1) {
         int first = gen() % 2;
         first == 0? cout << endl << "Вам повезло, вы атакуете первым" << endl : cout << endl << "Вам не повезло, вас атакуют первым" << endl;
@@ -478,7 +478,7 @@ void play(string myField[10][10], string myBotField[10][10], string botField[10]
             }
             else {
                 botTry++;
-                botShoot(myField, botMyField, botHit) != 1 ? first = 0 : first = 1;
+                botShoot(myField, botMyField, botHit) != 1 ? first = 1 : first = 1;
             }
             wait();
         }
@@ -488,7 +488,6 @@ void play(string myField[10][10], string myBotField[10][10], string botField[10]
         printArray(myField);
         cout << "Поле противника" << endl;
         printArray(botField);
-
         bot = 0, my = 0;
         checkArray(myField, botField, my, bot) == 1 ? cout << "Победил противник!" << endl : cout << "Вы победили!" << endl;
         cout << "Всего ваших попыток: " << myTry << " " << "Всего противника попыток: " << botTry << endl << "Всего ваших удачных попыток: " << bot << " " << "Всего противника удачных попыток: " << my << endl;
@@ -508,7 +507,8 @@ void rules() {
     cout << "Корабли не должны соприкасаться, а быть в расстоянии друг от друга в 1 клетку" << endl;
     cout << "Вид правильной расстановки при рандом варианте:" << endl << endl;
     printArray(array);
-    cout << "Целая палуба корабля позначается O, разрушенная палуба корабля позначается X, пустое место никак не позначается, промазанная клетка при выстреле позначается *" << endl << endl;
+    cout << "Целая палуба корабля позначается 'O', разрушенная палуба корабля позначается 'X', пустое место никак не позначается, " << endl;
+    cout << "промазанная клетка при выстреле позначается '*', при полном разрушении корабля вокруг ставится '.' - там не могут быть палубы" << endl;
     cout << "После расстановки кораблей рандомно выбирается первый кто стреляет - вы или противник" << endl; 
     cout << "При стрельбе следует помнить, что бессмысленно стрелять в одну и ту же клетку, и после каждого выстрела пишется - попал или не попал, а также ранил или потопил корабль" << endl;
     cout << "Первый игрок, который потопил все палубы у всех кораблей - побеждает" << endl;
