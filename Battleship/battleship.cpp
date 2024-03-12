@@ -478,7 +478,7 @@ void play(string myField[10][10], string myBotField[10][10], string botField[10]
             }
             else {
                 botTry++;
-                botShoot(myField, botMyField, botHit) != 1 ? first = 1 : first = 1;
+                botShoot(myField, botMyField, botHit) != 1 ? first = 0 : first = 1;
             }
             wait();
         }
