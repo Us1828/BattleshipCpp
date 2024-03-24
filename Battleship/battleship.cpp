@@ -459,7 +459,7 @@ void play(string myField[10][10], string myBotField[10][10], string botField[10]
 
     clear("Игра Расстановка кораблей");
     fullGenerationArray(botField);
-    cout << "1 Вы ставите корабли или 2 рандом?" << endl << endl;
+    cout << "1 Вы ставите корабли или 2 Случайным образом?" << endl << endl;
     put = input(1, 2);
     put == 1 ? putArray(myField) : fullGenerationArray(myField);
     printFields(myField, myBotField);
